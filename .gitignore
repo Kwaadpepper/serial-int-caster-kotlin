@@ -1,0 +1,15 @@
+.gradle
+.settings
+.project
+.classpath
+.idea
+.vscode
+.DS_Store
+bin
+build
+target
+ktDebugJsonLog.txt
+
+# ignore CSV test files
+serialTestFilePhp.csv
+serialTestFileKotlin.csv
