@@ -53,7 +53,6 @@ class FisherYatesShuffler(seed: Long) {
     /** Generate a random number between bounds */
     private fun random(min: Long, max: Long): Long
     {
-        this.checkBounds(min, max)
         return min + (this.rand() * ((max - min) + 1)).toLong()
     }
 
@@ -61,13 +60,5 @@ class FisherYatesShuffler(seed: Long) {
     private fun rand(): Double
     {
         return twister.genrand_int32().toDouble() / 0xffffffff
-    }
-
-    /** Assert min is lower or equals to max */
-    private fun checkBounds(min: Long, max: Long)
-    {
-        if (min > max) {
-            throw RuntimeException("lower bound exceeds upper bound: $min > $max")
-        }
     }
 }
