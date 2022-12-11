@@ -109,7 +109,7 @@ class SerialCaster {
                         i++
                     }
                 }
-                intChars = list.toList()
+                intChars = list.toList().distinct().sorted()
             }
         }
 

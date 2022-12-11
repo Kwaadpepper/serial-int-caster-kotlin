@@ -28,12 +28,34 @@ class SerialCasterTest {
     }
 
     /**
+     * Test integer encodes to string with default dict
+     */
+    @Test fun testSerialEncodeWithDefaultDict()
+    {
+        assertEquals(
+            "1bzzzO",
+            SerialCaster.encode(14776335, 0, LENGTH),
+            "Encoding 14776335(10) on base with ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 should give 1bzzzO"
+        )
+    }
+
+    /**
      * Tests String decode to integer
      */
     @Test fun testSerialDecode()
     {
         assertEquals(SerialCaster.decode(
             "000HLC", 0, ALPHANUMERIC.toCharArray()
+        ), 666)
+    }
+
+    /**
+     * Tests String decode to integer wth default dict
+     */
+    @Test fun testSerialDecodeWithDefaultDict()
+    {
+        assertEquals(SerialCaster.decode(
+            "000HLC", 0
         ), 666)
     }
 
