@@ -10,14 +10,13 @@ plugins {
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     id("org.jetbrains.kotlin.jvm") version "1.6.20"
 
+    id("java-library")
     id("maven-publish")
-
-    // Apply the application plugin to add support for building a CLI application.
-    application
+    signing
 }
 
-group = "org.jetbrains.base64"
-version = "1.0.0"
+group = "com.serialIntCaster"
+version = "1.1.0"
 
 repositories {
     // You can declare any Maven/Ivy/file repository here.
@@ -43,16 +42,55 @@ val sourcesJar by tasks.registering(Jar::class) {
     from(sourceSets.main.get().allSource)
 }
 
+
 publishing {
-    repositories {
-        maven{
-            url = uri("https://jitpack.io")
-        }
-    }
     publications {
-        register("mavenJava", MavenPublication::class) {
+        create<MavenPublication>("mavenJava") {
+            artifactId = "serial-int-caster"
             from(components["java"])
-            artifact(sourcesJar.get())
+            versionMapping {
+                usage("java-api") {
+                    fromResolutionOf("runtimeClasspath")
+                }
+                usage("java-runtime") {
+                    fromResolutionResult()
+                }
+            }
+
+            pom {
+                name.set("Serial Int Caster")
+                description.set("Encode or decode an integer to or from a string serial ")
+                url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin")
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin/blob/main/LICENSE")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("kwaadpepper")
+                        name.set("Jérémy Munsch")
+                        email.set("github@jeremydev.ovh")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git://github.com/serial-int-caster-kotlin")
+                    url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin")
+                }
+            }
         }
     }
 }
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+tasks.jar {
+    manifest {
+        attributes(mapOf("Implementation-Title" to project.name,
+            "Implementation-Version" to project.version))
+    }
+}
+
