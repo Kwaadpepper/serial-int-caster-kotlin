@@ -16,6 +16,8 @@ class SerialCaster {
          */
         private var intChars: List<Char> = listOf()
 
+        private lateinit var shuffler: FisherYatesShuffler
+
         /**
          * Encode an integer using chars generating a serial of a minimum length
          *
@@ -162,7 +164,8 @@ class SerialCaster {
             if (seed == 0.toLong()) {
                 return serial
             }
-            val shuffledSerial = FisherYatesShuffler(seed).shuffle(serial)
+            this.setupShuffle(seed)
+            val shuffledSerial = shuffler.shuffle(serial)
             return this.rotateLeft(
                     shuffledSerial,
                     this.sumString(shuffledSerial).mod(shuffledSerial.length)
@@ -176,8 +179,20 @@ class SerialCaster {
             if (seed == 0.toLong()) {
                 return serial
             }
-            return FisherYatesShuffler(seed)
-                    .unShuffle(this.rotateRight(serial, this.sumString(serial).mod(serial.length)))
+            this.setupShuffle(seed)
+            return shuffler.unShuffle(this.rotateRight(serial, this.sumString(serial).mod(serial.length)))
+        }
+
+        /**
+         * Setup shuffle
+         */
+        private fun setupShuffle(seed: Long)
+        {
+            if (!::shuffler.isInitialized) {
+                shuffler = FisherYatesShuffler(seed)
+            } else if (shuffler.seed() != seed) {
+                shuffler = FisherYatesShuffler(seed)
+            }
         }
 
         /**

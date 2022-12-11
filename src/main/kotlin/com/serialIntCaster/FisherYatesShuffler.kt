@@ -14,6 +14,14 @@ class FisherYatesShuffler(seed: Long) {
     private val seedInt: Long = seed
     private var twister: MersenneTwister = MersenneTwister(seed)
 
+    /**
+     * Get the actual seed.
+     */
+    fun seed(): Long
+    {
+        return seedInt
+    }
+
     /** Shuffle a string using the seed number */
     fun shuffle(string: String): String {
         twister = MersenneTwister(seedInt)
