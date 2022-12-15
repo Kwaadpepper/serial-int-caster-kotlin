@@ -35,7 +35,6 @@ dependencies {
 
     // Use the Kotlin JUnit integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-    testImplementation("org.testng:testng:7.6.1")
 }
 val sourcesJar by tasks.registering(Jar::class) {
     classifier = "sources"

@@ -137,7 +137,7 @@ class SerialCaster {
                     outValue = outValue.add(
                         BigInteger(fromBaseInput.indexOf(numberInput[i - 1]).toString()).multiply(
                             fromLen.pow(
-                                numberLen.subtract(BigInteger(i.toString())).intValueExact()
+                                numberLen.subtract(BigInteger(i.toString())).toInt()
                             ) //pow(fromLen, numberLen.subtract(new BigInteger(""+i)))
                         )
                     )
@@ -151,7 +151,7 @@ class SerialCaster {
             var outValue = ""
             var base10bigInt = BigInteger(base10)
             while (base10bigInt != BigInteger.ZERO) {
-                outValue = toBaseInput[base10bigInt.mod(toLen).intValueExact()].toString() + outValue
+                outValue = toBaseInput[base10bigInt.mod(toLen).toInt()].toString() + outValue
                 base10bigInt = base10bigInt.divide(toLen)
             }
             return outValue
