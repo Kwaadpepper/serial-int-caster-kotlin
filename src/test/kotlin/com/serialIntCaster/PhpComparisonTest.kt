@@ -19,7 +19,7 @@ class PhpComparisonTest {
      */
     @Test fun testPhpGeneratedFile()
     {
-        val kotlinFileName = "serialTestFileKotlin.csv"
+        val kotlinFileName = "serialTestFilePhp.csv"
         val file = File(kotlinFileName)
 
         Assume.assumeTrue(
@@ -44,10 +44,10 @@ class PhpComparisonTest {
 
         // * Check Header values
         assertTrue(
-      cvsContent[1].size == 3 &&
+            cvsContent[1].size == 3 &&
             cvsContent[1][0].all { char -> char.isDigit() } &&
             cvsContent[1][1].toIntOrNull() == LENGTH && cvsContent[1][2] == ALPHANUMERIC,
-    "Array Header values should be like " + arrayOf(
+            "Array Header values should be like " + arrayOf(
                 "integer value", LENGTH, ALPHANUMERIC
             )
         )
@@ -63,7 +63,7 @@ class PhpComparisonTest {
         assertTrue(size - 3 > 0, "There should be line to check in the file")
 
         for (i in  3 until size -1) {
-           assertTrue(0 in cvsContent[i].indices, "The row should have an integer")
+            assertTrue(0 in cvsContent[i].indices, "The row should have an integer")
             assertTrue(cvsContent[i][0].all { char -> char.isDigit() }, "The row should have an integer")
             assertTrue(1 in cvsContent[i].indices, "The row should have a serial")
             assertTrue(cvsContent[i][1].isNotEmpty(), "The row should have a serial")
