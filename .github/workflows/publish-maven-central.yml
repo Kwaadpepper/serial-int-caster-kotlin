@@ -1,4 +1,4 @@
-name: Publish to Maven Central
+name: Build and Prepare Maven Central Bundle
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "*.*.*"
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,13 +18,17 @@ jobs:
           java-version: "11"
           distribution: "temurin"
 
-      - name: Build artifacts
-        run: ./gradlew build
-
-      - name: Publish to Maven Central
-        run: ./gradlew publish --no-daemon
+      - name: Build and sign artifacts
+        run: ./gradlew clean build publishToMavenLocal
         env:
-          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: maven-artifacts
+          path: |
+            build/libs/*.jar
+            build/publications/maven/pom-default.xml
+          retention-days: 7
