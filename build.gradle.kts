@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.kotlin.jvm") version "1.6.20"
+    id("org.jetbrains.kotlin.jvm") version "1.9.25"
     id("java-library")
     id("com.vanniktech.maven.publish") version "0.28.0"
 }
