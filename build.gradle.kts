@@ -3,7 +3,6 @@ plugins {
     id("java-library")
     id("maven-publish")
     signing
-    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
 group = "io.github.kwaadpepper"
@@ -30,7 +29,7 @@ publishing {
         create<MavenPublication>("maven") {
             groupId = "io.github.kwaadpepper"
             artifactId = "serial-int-caster"
-            version = "2.0.0"
+            version = project.version.toString()
 
             from(components["java"])
 
@@ -64,19 +63,25 @@ publishing {
     }
 }
 
-nexusPublishing {
-    this.repositories {
-        create("central") {
-            nexusUrl.set(uri("https://central.sonatype.com/api/v1/publisher/"))
-            username.set(System.getenv("MAVEN_CENTRAL_USERNAME"))
-            password.set(System.getenv("MAVEN_CENTRAL_PASSWORD"))
-        }
-    }
-}
-
 signing {
     val signingKey = System.getenv("SIGNING_KEY")
     val signingPassword = System.getenv("SIGNING_PASSWORD")
-    useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications["maven"])
+
+    if (signingKey != null && signingPassword != null) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications["maven"])
+    }
+}
+
+tasks.register<Zip>("buildBundle") {
+    group = "publishing"
+    description = "Build a bundle for Maven Central upload"
+
+    dependsOn("build", "generatePomFileForMavenPublication", "signMavenPublication")
+
+    from(layout.buildDirectory.dir("libs"))
+    from(layout.buildDirectory.dir("publications/maven"))
+
+    archiveFileName.set("${project.name}-${project.version}-bundle.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("bundle"))
 }
