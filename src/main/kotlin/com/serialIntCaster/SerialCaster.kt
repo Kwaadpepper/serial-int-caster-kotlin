@@ -1,4 +1,4 @@
-package com.serialIntCaster
+package io.github.kwaadpepper.serialintcaster
 
 import java.math.BigInteger
 import kotlin.math.floor
@@ -11,9 +11,7 @@ class SerialCaster {
 
         private const val BASE10 = "0123456789"
 
-        /**
-         * Available chars for Serial generation
-         */
+        /** Available chars for Serial generation */
         private var intChars: List<Char> = listOf()
 
         private lateinit var shuffler: FisherYatesShuffler
@@ -23,16 +21,22 @@ class SerialCaster {
          *
          * Note: if seed is equal to 0 it won't be used
          */
-        fun encode(number: Long, seed: Long = 0, length: Int = 6, chars: CharArray = charArrayOf()): String
-        {
+        fun encode(
+                number: Long,
+                seed: Long = 0,
+                length: Int = 6,
+                chars: CharArray = charArrayOf()
+        ): String {
             val outString = StringBuilder()
             outString.append(number)
             init(number, length, chars)
             val charsCount = intChars.size.toString().padStart(2, '0')
             outString.append(charsCount)
-            return this.shuffle(seed, this.convBase(
-                outString.toString(), BASE10, String(intChars.toCharArray())
-            ).padStart(length, intChars[0]))
+            return this.shuffle(
+                    seed,
+                    this.convBase(outString.toString(), BASE10, String(intChars.toCharArray()))
+                            .padStart(length, intChars[0])
+            )
         }
 
         /**
@@ -40,38 +44,37 @@ class SerialCaster {
          *
          * Note: if seed is equal to 0 it won't be used
          */
-        fun decode(serial: String, seed: Long = 0, chars: CharArray = charArrayOf()): Long
-        {
+        fun decode(serial: String, seed: Long = 0, chars: CharArray = charArrayOf()): Long {
             this.setChars(chars)
             val unShuffledSerial = this.unShuffle(seed, serial)
             val serialLength = unShuffledSerial.length
-            var outNumber    = this.convBase(unShuffledSerial, String(intChars.toCharArray()), BASE10)
+            var outNumber = this.convBase(unShuffledSerial, String(intChars.toCharArray()), BASE10)
             var i = 0
-            while(i < serialLength) {
+            while (i < serialLength) {
                 val serialChar = serial[i]
                 if (!intChars.contains(serialChar)) {
                     throw SerialCasterException(
-                        "SerialCaster::decode a non valid char `$serialChar` is present"
+                            "SerialCaster::decode a non valid char `$serialChar` is present"
                     )
                 }
                 i++
             }
             if (outNumber.length < 3) {
-                throw SerialCasterException("SerialCaster::decode a un valid serial code has been given")
+                throw SerialCasterException(
+                        "SerialCaster::decode a un valid serial code has been given"
+                )
             }
-            val charsCount = outNumber.substring(outNumber.length -2, outNumber.length).toInt()
-            outNumber      = outNumber.substring(0,outNumber.length -2)
+            val charsCount = outNumber.substring(outNumber.length - 2, outNumber.length).toInt()
+            outNumber = outNumber.substring(0, outNumber.length - 2)
             if (charsCount != intChars.size) {
                 throw SerialCasterException(
-                    "SerialCaster::decode the char list used for encoding and decoding is seems to be different",
+                        "SerialCaster::decode the char list used for encoding and decoding is seems to be different",
                 )
             }
             return outNumber.toLong()
         }
 
-        /**
-         * Initialize SerialCaster
-         */
+        /** Initialize SerialCaster */
         private fun init(number: Long, length: Int, chars: CharArray) {
             this.setChars(chars)
 
@@ -89,9 +92,7 @@ class SerialCaster {
             }
         }
 
-        /**
-         * Setup char dict
-         */
+        /** Setup char dict */
         private fun setChars(chars: CharArray) {
             if (chars.isNotEmpty()) {
                 // Keep a string of unique chars
@@ -124,7 +125,11 @@ class SerialCaster {
          * @return string
          * @url https://www.php.net/manual/fr/function.base-convert.php#106546
          */
-        private fun convBase(numberInput: String, fromBaseInput: String, toBaseInput: String): String {
+        private fun convBase(
+                numberInput: String,
+                fromBaseInput: String,
+                toBaseInput: String
+        ): String {
             if (fromBaseInput == toBaseInput) {
                 return numberInput
             }
@@ -134,17 +139,26 @@ class SerialCaster {
             if (toBaseInput == BASE10) {
                 var outValue: BigInteger = BigInteger.ZERO
                 for (i in 1..numberInput.length) {
-                    outValue = outValue.add(
-                        BigInteger(fromBaseInput.indexOf(numberInput[i - 1]).toString()).multiply(
-                            fromLen.pow(
-                                numberLen.subtract(BigInteger(i.toString())).toInt()
-                            ) //pow(fromLen, numberLen.subtract(new BigInteger(""+i)))
-                        )
-                    )
+                    outValue =
+                            outValue.add(
+                                    BigInteger(fromBaseInput.indexOf(numberInput[i - 1]).toString())
+                                            .multiply(
+                                                    fromLen.pow(
+                                                            numberLen
+                                                                    .subtract(
+                                                                            BigInteger(i.toString())
+                                                                    )
+                                                                    .toInt()
+                                                    ) // pow(fromLen, numberLen.subtract(new
+                                                    // BigInteger(""+i)))
+                                                    )
+                            )
                 }
                 return outValue.toString()
             }
-            val base10 = if (fromBaseInput == BASE10) numberInput else convBase(numberInput, fromBaseInput, BASE10)
+            val base10 =
+                    if (fromBaseInput == BASE10) numberInput
+                    else convBase(numberInput, fromBaseInput, BASE10)
             if (BigInteger(base10) < toLen) {
                 return toBaseInput[Integer.parseInt(base10)].toString()
             }
@@ -157,9 +171,7 @@ class SerialCaster {
             return outValue
         }
 
-        /**
-         * If seed is different from 0, then shuffles the serial bytes using the seed
-         */
+        /** If seed is different from 0, then shuffles the serial bytes using the seed */
         private fun shuffle(seed: Long, serial: String): String {
             if (seed == 0.toLong()) {
                 return serial
@@ -172,22 +184,19 @@ class SerialCaster {
             )
         }
 
-        /**
-         * If seed is different from 0, then un shuffle the serial bytes using the seed
-         */
+        /** If seed is different from 0, then un shuffle the serial bytes using the seed */
         private fun unShuffle(seed: Long, serial: String): String {
             if (seed == 0.toLong()) {
                 return serial
             }
             this.setupShuffle(seed)
-            return shuffler.unShuffle(this.rotateRight(serial, this.sumString(serial).mod(serial.length)))
+            return shuffler.unShuffle(
+                    this.rotateRight(serial, this.sumString(serial).mod(serial.length))
+            )
         }
 
-        /**
-         * Setup shuffle
-         */
-        private fun setupShuffle(seed: Long)
-        {
+        /** Setup shuffle */
+        private fun setupShuffle(seed: Long) {
             if (!::shuffler.isInitialized) {
                 shuffler = FisherYatesShuffler(seed)
             } else if (shuffler.seed() != seed) {
@@ -197,7 +206,8 @@ class SerialCaster {
 
         /**
          * Calculate the length of a decimal number in a new base length
-         * @url https://www.geeksforgeeks.org/given-number-n-decimal-base-find-number-digits-base-base-b/
+         * @url
+         * https://www.geeksforgeeks.org/given-number-n-decimal-base-find-number-digits-base-base-b/
          */
         private fun calculateNewBaseLengthFromBase10(number: Long, base: Int): Int {
             return (floor(ln(number.toDouble()) / ln(base.toDouble())) + 1).toInt()
@@ -232,9 +242,7 @@ class SerialCaster {
             return String(charList.toCharArray())
         }
 
-        /**
-         * Sum all string chars values
-         */
+        /** Sum all string chars values */
         private fun sumString(string: String): Int {
             var o = 0
             var i = string.length - 1

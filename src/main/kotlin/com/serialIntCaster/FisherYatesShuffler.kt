@@ -1,4 +1,4 @@
-package com.serialIntCaster
+package io.github.kwaadpepper.serialintcaster
 
 import mt19937ar.MersenneTwister
 
@@ -14,11 +14,8 @@ class FisherYatesShuffler(seed: Long) {
     private val seedInt: Long = seed
     private var twister: MersenneTwister = MersenneTwister(seed)
 
-    /**
-     * Get the actual seed.
-     */
-    fun seed(): Long
-    {
+    /** Get the actual seed. */
+    fun seed(): Long {
         return seedInt
     }
 
@@ -44,29 +41,27 @@ class FisherYatesShuffler(seed: Long) {
         val length = string.length
         val indices: MutableList<Int> = MutableList(length) { 0 }
 
-        var i = length -1
+        var i = length - 1
         while (i >= 1) {
             indices[i] = this.random(0, i.toLong()).toInt()
             i--
         }
         indices.removeAt(0)
-        indices.withIndex().forEach{
+        indices.withIndex().forEach {
             val t = stringMutable[it.value]
-            stringMutable[it.value] = stringMutable[it.index +1]
-            stringMutable[it.index +1] = t
+            stringMutable[it.value] = stringMutable[it.index + 1]
+            stringMutable[it.index + 1] = t
         }
         return stringMutable.joinToString("")
     }
 
     /** Generate a random number between bounds */
-    private fun random(min: Long, max: Long): Long
-    {
+    private fun random(min: Long, max: Long): Long {
         return min + (this.rand() * ((max - min) + 1)).toLong()
     }
 
     /** Equivalent to Math.random using MersenneTwister int32 */
-    private fun rand(): Double
-    {
+    private fun rand(): Double {
         return twister.genrand_int32().toDouble() / 0xffffffff
     }
 }
