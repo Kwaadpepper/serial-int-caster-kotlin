@@ -1,8 +1,7 @@
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.6.20"
     id("java-library")
-    id("maven-publish")
-    signing
+    id("com.vanniktech.maven.publish") version "0.28.0"
 }
 
 group = "io.github.kwaadpepper"
@@ -20,68 +19,44 @@ dependencies {
 }
 
 java {
-    withJavadocJar()
-    withSourcesJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "io.github.kwaadpepper"
-            artifactId = "serial-int-caster"
-            version = project.version.toString()
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
 
-            from(components["java"])
+    coordinates("io.github.kwaadpepper", "serial-int-caster", "2.0.0")
 
-            pom {
-                name.set("Serial Int Caster")
-                description.set("Encode or decode an integer to or from a string serial")
-                url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin")
+    pom {
+        name.set("Serial Int Caster")
+        description.set("Encode or decode an integer to or from a string serial")
+        inceptionYear.set("2023")
+        url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin")
 
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("kwaadpepper")
-                        name.set("Jérémy Munsch")
-                        email.set("github@jeremydev.ovh")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/Kwaadpepper/serial-int-caster-kotlin.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/Kwaadpepper/serial-int-caster-kotlin.git")
-                    url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin")
-                }
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+                distribution.set("https://opensource.org/licenses/MIT")
             }
         }
+
+        developers {
+            developer {
+                id.set("kwaadpepper")
+                name.set("Jérémy Munsch")
+                email.set("github@jeremydev.ovh")
+                url.set("https://github.com/Kwaadpepper")
+            }
+        }
+
+        scm {
+            connection.set("scm:git:git://github.com/Kwaadpepper/serial-int-caster-kotlin.git")
+            developerConnection.set("scm:git:ssh://git@github.com:Kwaadpepper/serial-int-caster-kotlin.git")
+            url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin")
+        }
     }
-}
-
-signing {
-    val signingKey = System.getenv("SIGNING_KEY")
-    val signingPassword = System.getenv("SIGNING_PASSWORD")
-
-    if (signingKey != null && signingPassword != null) {
-        useInMemoryPgpKeys(signingKey, signingPassword)
-        sign(publishing.publications["maven"])
-    }
-}
-
-tasks.register<Zip>("buildBundle") {
-    group = "publishing"
-    description = "Build a bundle for Maven Central upload"
-
-    dependsOn("build", "generatePomFileForMavenPublication", "signMavenPublication")
-
-    from(layout.buildDirectory.dir("libs"))
-    from(layout.buildDirectory.dir("publications/maven"))
-
-    archiveFileName.set("${project.name}-${project.version}-bundle.zip")
-    destinationDirectory.set(layout.buildDirectory.dir("bundle"))
 }
