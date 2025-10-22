@@ -1,14 +1,12 @@
-import org.gradle.api.tasks.bundling.Jar
-
 plugins {
     id("org.jetbrains.kotlin.jvm") version "1.6.20"
-
     id("java-library")
     id("maven-publish")
     signing
+    id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
 }
 
-group = "io.github.kwaadpepper.serialintcaster"
+group = "io.github.kwaadpepper"
 version = "2.0.0"
 
 repositories {
@@ -16,22 +14,10 @@ repositories {
 }
 
 dependencies {
-    // Align versions of all Kotlin components
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
-
-    // Use the Kotlin JDK 8 standard library.
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-
-    // Use the Kotlin test library.
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-
-    // Use the Kotlin JUnit integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-}
-
-val sourcesJar by tasks.registering(Jar::class) {
-    classifier = "sources"
-    from(sourceSets.main.get().allSource)
 }
 
 java {
@@ -41,18 +27,12 @@ java {
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
+        create<MavenPublication>("maven") {
+            groupId = "io.github.kwaadpepper"
             artifactId = "serial-int-caster"
-            from(components["java"])
+            version = "2.0.0"
 
-            versionMapping {
-                usage("java-api") {
-                    fromResolutionOf("runtimeClasspath")
-                }
-                usage("java-runtime") {
-                    fromResolutionResult()
-                }
-            }
+            from(components["java"])
 
             pom {
                 name.set("Serial Int Caster")
@@ -62,7 +42,7 @@ publishing {
                 licenses {
                     license {
                         name.set("MIT License")
-                        url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin/blob/main/LICENSE")
+                        url.set("https://opensource.org/licenses/MIT")
                     }
                 }
 
@@ -76,24 +56,20 @@ publishing {
 
                 scm {
                     connection.set("scm:git:git://github.com/Kwaadpepper/serial-int-caster-kotlin.git")
-                    developerConnection.set("scm:git:ssh://github.com/Kwaadpepper/serial-int-caster-kotlin.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/Kwaadpepper/serial-int-caster-kotlin.git")
                     url.set("https://github.com/Kwaadpepper/serial-int-caster-kotlin")
                 }
             }
         }
     }
+}
 
-    repositories {
-        maven {
-            name = "OSSRH"
-            val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
-
-            credentials {
-                username = System.getenv("OSSRH_USERNAME")
-                password = System.getenv("OSSRH_PASSWORD")
-            }
+nexusPublishing {
+    this.repositories {
+        create("central") {
+            nexusUrl.set(uri("https://central.sonatype.com/api/v1/publisher/"))
+            username.set(System.getenv("MAVEN_CENTRAL_USERNAME"))
+            password.set(System.getenv("MAVEN_CENTRAL_PASSWORD"))
         }
     }
 }
@@ -101,16 +77,6 @@ publishing {
 signing {
     val signingKey = System.getenv("SIGNING_KEY")
     val signingPassword = System.getenv("SIGNING_PASSWORD")
-
     useInMemoryPgpKeys(signingKey, signingPassword)
-    sign(publishing.publications["mavenJava"])
-}
-
-tasks.jar {
-    manifest {
-        attributes(mapOf(
-            "Implementation-Title" to project.name,
-            "Implementation-Version" to project.version
-        ))
-    }
+    sign(publishing.publications["maven"])
 }
